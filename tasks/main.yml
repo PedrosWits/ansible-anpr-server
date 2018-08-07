@@ -1,0 +1,39 @@
+---
+# tasks file for anpr-mssql-server
+# Assumes volumes are aivalable/attached
+
+- name: Clone anpr-mssql-server git repository
+  git:
+    repo: 'https://github.com/PedrosWits/anpr-mssql-server.git'
+    dest: "{{ destination }}"
+    clone: yes
+  ignore_errors: yes
+
+- name: Run make install
+  make:
+    chdir: "{{ destination }}"
+    target: install
+
+- name: Mount volumes
+  mount:
+    path: "{{ destination }}/{{ item.mount_dir }}"
+    src: "{{ item.blkid }}"
+    state: mounted
+    fstype: "{{ item.fstype }}"
+  with_items: "{{ volumes }}"
+  when: item.blkid != ''
+  become: true
+
+- name: "Pull docker image"
+  command: "{{ destination }}/ENV/bin/python {{ destination }}/server.py pull-image"
+
+- name: "Start server"
+  environment:
+    SQL_PASSWORD: "{{ sql_password }}"
+  command: "{{ destination }}/ENV/bin/python {{ destination }}/server.py start --ram {{ max_ram }}"
+
+- name: "Attach the ANPR database"
+  environment:
+    SQL_PASSWORD: "{{ sql_password }}"
+  command: "{{ destination }}/ENV/bin/python {{ destination }}/server.py attach"
+  when: attach
