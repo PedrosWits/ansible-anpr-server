@@ -1,0 +1,21 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: Pedro Pinto da Silva
+  description: Role to set up the ANPR mssql server
+  company: Newcastle University
+  license: MIT
+  min_ansible_version: 2.4
+  platforms:
+    - name: Ubuntu
+      versions:
+      - precise
+      - trusty
+      - xenial
+
+  galaxy_tags:
+    - sql-server
+    - mssql-server
+    - anpr
+    - database
